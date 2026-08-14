@@ -106,7 +106,9 @@ export const syncMailbox = createServerFn({ method: "POST" })
     }
 
     const endpointUrl = connection.endpoint_url;
-      const result = await mcpCall(connection, "tools/call", {
+
+    try {
+      const result = await mcpCall({ endpoint_url: endpointUrl, auth_token: connection.auth_token }, "tools/call", {
         name: "read_emails",
         arguments: { folder: "INBOX", unseenOnly: true, limit: 50 },
       });
