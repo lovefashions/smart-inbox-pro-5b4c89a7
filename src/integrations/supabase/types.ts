@@ -21,6 +21,7 @@ export type Database = {
           key_hash: string
           label: string
           last_used: string | null
+          organization_id: string | null
           updated_at: string
         }
         Insert: {
@@ -29,6 +30,7 @@ export type Database = {
           key_hash: string
           label: string
           last_used?: string | null
+          organization_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -37,6 +39,7 @@ export type Database = {
           key_hash?: string
           label?: string
           last_used?: string | null
+          organization_id?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -50,6 +53,7 @@ export type Database = {
           from_email: string
           from_name: string
           id: string
+          organization_id: string | null
           sent_at: string
         }
         Insert: {
@@ -60,6 +64,7 @@ export type Database = {
           from_email: string
           from_name: string
           id?: string
+          organization_id?: string | null
           sent_at?: string
         }
         Update: {
@@ -70,6 +75,7 @@ export type Database = {
           from_email?: string
           from_name?: string
           id?: string
+          organization_id?: string | null
           sent_at?: string
         }
         Relationships: [
@@ -90,6 +96,7 @@ export type Database = {
           external_id: string | null
           id: string
           kind: string | null
+          organization_id: string | null
           received_at: string
           sender_email: string
           sender_name: string
@@ -107,6 +114,7 @@ export type Database = {
           external_id?: string | null
           id?: string
           kind?: string | null
+          organization_id?: string | null
           received_at?: string
           sender_email: string
           sender_name: string
@@ -124,6 +132,7 @@ export type Database = {
           external_id?: string | null
           id?: string
           kind?: string | null
+          organization_id?: string | null
           received_at?: string
           sender_email?: string
           sender_name?: string
@@ -143,6 +152,7 @@ export type Database = {
           embedding: string | null
           id: string
           included: boolean
+          organization_id: string | null
           sent_at: string | null
           source_account: string
           thread_subject: string
@@ -154,6 +164,7 @@ export type Database = {
           embedding?: string | null
           id?: string
           included?: boolean
+          organization_id?: string | null
           sent_at?: string | null
           source_account: string
           thread_subject: string
@@ -165,6 +176,7 @@ export type Database = {
           embedding?: string | null
           id?: string
           included?: boolean
+          organization_id?: string | null
           sent_at?: string | null
           source_account?: string
           thread_subject?: string
@@ -178,6 +190,7 @@ export type Database = {
           created_at: string
           embedding: string | null
           id: string
+          organization_id: string | null
           tags: string[] | null
           title: string
           updated_at: string
@@ -187,6 +200,7 @@ export type Database = {
           created_at?: string
           embedding?: string | null
           id?: string
+          organization_id?: string | null
           tags?: string[] | null
           title: string
           updated_at?: string
@@ -196,6 +210,7 @@ export type Database = {
           created_at?: string
           embedding?: string | null
           id?: string
+          organization_id?: string | null
           tags?: string[] | null
           title?: string
           updated_at?: string
@@ -211,6 +226,7 @@ export type Database = {
           imap_host: string | null
           imap_port: string | null
           is_active: boolean
+          organization_id: string | null
           password: string | null
           provider_mode: string
           provider_name: string | null
@@ -227,6 +243,7 @@ export type Database = {
           imap_host?: string | null
           imap_port?: string | null
           is_active?: boolean
+          organization_id?: string | null
           password?: string | null
           provider_mode?: string
           provider_name?: string | null
@@ -243,6 +260,7 @@ export type Database = {
           imap_host?: string | null
           imap_port?: string | null
           is_active?: boolean
+          organization_id?: string | null
           password?: string | null
           provider_mode?: string
           provider_name?: string | null
@@ -253,6 +271,62 @@ export type Database = {
         }
         Relationships: []
       }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_organizations: {
+        Row: {
+          created_at: string
+          id: string
+          organization_id: string
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          organization_id: string
+          role?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          organization_id?: string
+          role?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_organizations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       voice_profiles: {
         Row: {
           avg_length: string | null
@@ -260,6 +334,7 @@ export type Database = {
           greeting: string | null
           id: string
           is_active: boolean
+          organization_id: string | null
           phrases: string[] | null
           signoff: string | null
           tone: string | null
@@ -271,6 +346,7 @@ export type Database = {
           greeting?: string | null
           id?: string
           is_active?: boolean
+          organization_id?: string | null
           phrases?: string[] | null
           signoff?: string | null
           tone?: string | null
@@ -282,6 +358,7 @@ export type Database = {
           greeting?: string | null
           id?: string
           is_active?: boolean
+          organization_id?: string | null
           phrases?: string[] | null
           signoff?: string | null
           tone?: string | null
