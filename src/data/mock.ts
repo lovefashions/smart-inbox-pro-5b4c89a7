@@ -127,7 +127,7 @@ export const mockThreads: EmailThread[] = [
     subject: "[REFUND] Order #40213 arrived damaged",
     snippet: "The box was crushed on delivery and two mugs were broken...",
     receivedAt: "2026-08-13T14:02:00Z",
-    status: "draft_ready",
+    status: "draft",
     unread: true,
     messages: [
       {
@@ -150,7 +150,7 @@ export const mockThreads: EmailThread[] = [
     subject: "[PAYMENT] Invoice INV-2291 still outstanding",
     snippet: "Our records show invoice INV-2291 is 18 days past due...",
     receivedAt: "2026-08-13T09:41:00Z",
-    status: "draft_ready",
+    status: "draft",
     unread: true,
     kind: "payment_reminder",
     messages: [
@@ -197,7 +197,7 @@ export const mockThreads: EmailThread[] = [
     subject: "Question about bulk pricing",
     snippet: "We're looking at around 250 units per quarter — is there a tier...",
     receivedAt: "2026-08-12T17:20:00Z",
-    status: "draft_ready",
+    status: "draft",
     unread: false,
     messages: [
       {

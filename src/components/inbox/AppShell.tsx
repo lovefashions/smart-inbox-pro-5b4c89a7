@@ -25,7 +25,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const unread = threads.filter((t) => t.unread).length;
-  const pending = threads.filter((t) => t.status === "draft_ready").length;
+  const pending = threads.filter((t) => t.status === "draft").length;
 
   const items: NavItem[] = [
     { to: "/", label: "Inbox", icon: Inbox, count: unread },
