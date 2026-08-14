@@ -1,3 +1,14 @@
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+RUN npm install
+
+COPY tsconfig.json ./
+COPY src ./src
+RUN npm run build
+
 FROM node:20-alpine
 
 WORKDIR /app
@@ -5,7 +16,7 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm install --omit=dev
 
-COPY src ./src
+COPY --from=builder /app/dist ./dist
 
 ENV PORT=8931
 ENV MCP_AUTH_TOKEN=change-me-in-production
@@ -18,4 +29,4 @@ ENV SMTP_TLS=true
 
 EXPOSE 8931
 
-CMD ["node", "src/index.ts"]
+CMD ["node", "dist/index.js"]
