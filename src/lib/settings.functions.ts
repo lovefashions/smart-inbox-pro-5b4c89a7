@@ -62,6 +62,13 @@ const updateSchema = z.object({
   reminderAfterDays: z.number().int(),
 });
 
+function getEnvCredentials() {
+  return {
+    username: process.env["IONOS_EMAIL"]?.trim() || process.env["MAILBOX_USERNAME"]?.trim() || "",
+    password: process.env["IONOS_EMAIL_PASSWORD"]?.trim() || process.env["MAILBOX_PASSWORD"]?.trim() || "",
+  };
+}
+
 export const getSettings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -77,6 +84,7 @@ export const getSettings = createServerFn({ method: "GET" })
       organizationId,
       appSettings: appSettings ?? null,
       mailbox: mailbox ?? null,
+      envCredentials: getEnvCredentials(),
     };
   });
 
@@ -86,6 +94,7 @@ export const updateSettings = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const supabase = context.supabase as TypedSupabase;
     const organizationId = await getOrganizationId(supabase, context.userId);
+    const env = getEnvCredentials();
 
     const {
       mcp,
@@ -114,19 +123,23 @@ export const updateSettings = createServerFn({ method: "POST" })
 
     if (appSettingsError) throw appSettingsError;
 
+    const selfHosted = mcp.selfHosted;
+    const username = selfHosted.username.trim() || env.username || "";
+    const password = selfHosted.password.trim() || env.password || "";
+
     const { error: mailboxError } = await supabase.from("mailbox_connections").upsert(
       {
         organization_id: organizationId,
         provider_mode: mcp.mode,
         provider_name: mcp.mode === "managed" ? mcp.managed.providerName : "Self-hosted",
-        endpoint_url: mcp.mode === "managed" ? mcp.managed.endpointUrl : mcp.selfHosted.serverUrl,
-        auth_token: mcp.mode === "managed" ? mcp.managed.apiKey : mcp.selfHosted.authToken,
-        imap_host: mcp.selfHosted.imapHost,
-        imap_port: mcp.selfHosted.imapPort,
-        smtp_host: mcp.selfHosted.smtpHost,
-        smtp_port: mcp.selfHosted.smtpPort,
-        username: mcp.selfHosted.username,
-        password: mcp.selfHosted.password,
+        endpoint_url: mcp.mode === "managed" ? mcp.managed.endpointUrl : selfHosted.serverUrl,
+        auth_token: mcp.mode === "managed" ? mcp.managed.apiKey : selfHosted.authToken,
+        imap_host: selfHosted.imapHost,
+        imap_port: selfHosted.imapPort,
+        smtp_host: selfHosted.smtpHost,
+        smtp_port: selfHosted.smtpPort,
+        username,
+        password,
         is_active: true,
       },
       { onConflict: "organization_id" },

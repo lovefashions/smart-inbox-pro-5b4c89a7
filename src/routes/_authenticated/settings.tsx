@@ -74,6 +74,7 @@ function toAppSettings(db: Awaited<ReturnType<typeof getSettings>>): AppSettings
   const base = defaultSettings;
   const app = db.appSettings;
   const mbx = db.mailbox;
+  const env = db.envCredentials;
 
   const mcp: McpSettings = mbx
     ? {
@@ -90,11 +91,18 @@ function toAppSettings(db: Awaited<ReturnType<typeof getSettings>>): AppSettings
           imapPort: mbx.imap_port || base.mcp.selfHosted.imapPort,
           smtpHost: mbx.smtp_host || base.mcp.selfHosted.smtpHost,
           smtpPort: mbx.smtp_port || base.mcp.selfHosted.smtpPort,
-          username: mbx.username || base.mcp.selfHosted.username,
-          password: mbx.password || "",
+          username: mbx.username || env?.username || base.mcp.selfHosted.username,
+          password: mbx.password || env?.password || "",
         },
       }
-    : base.mcp;
+    : {
+        ...base.mcp,
+        selfHosted: {
+          ...base.mcp.selfHosted,
+          username: env?.username || base.mcp.selfHosted.username,
+          password: env?.password || "",
+        },
+      };
 
   return {
     mcp,
@@ -157,6 +165,7 @@ function SecretInput({
 function SettingsPage() {
   const { addAgentKey, revokeAgentKey, settings: appSettings } = useAppState();
   const [draft, setDraft] = useState<AppSettings>(defaultSettings);
+  const [envCredentials, setEnvCredentials] = useState<{ username?: string; password?: string } | null>(null);
   const [test, setTest] = useState<TestState>({ status: "idle", tools: [], message: "" });
   const [save, setSave] = useState<SaveState>({ status: "idle", message: "" });
   const runMailboxTest = useServerFn(testMailboxConnection);
@@ -171,7 +180,10 @@ function SettingsPage() {
   });
 
   useEffect(() => {
-    if (dbSettings) setDraft(toAppSettings(dbSettings));
+    if (dbSettings) {
+      setDraft(toAppSettings(dbSettings));
+      setEnvCredentials(dbSettings.envCredentials ?? null);
+    }
   }, [dbSettings]);
 
   const appMcpUrl =
@@ -319,11 +331,12 @@ function SettingsPage() {
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="s-pass">Mailbox password</Label>
-                  <SecretInput id="s-pass" value={draft.mcp.selfHosted.password} onChange={(v) => setSelf({ password: v })} />
+                  <SecretInput id="s-pass" value={draft.mcp.selfHosted.password} onChange={(v) => setSelf({ password: v })} placeholder={envCredentials?.password ? "Using IONOS_EMAIL_PASSWORD secret" : ""} />
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
                 Credentials are handed to your own MCP server — this app never opens an IMAP socket itself.
+                {envCredentials?.username ? " Username/password fall back to the IONOS_EMAIL / IONOS_EMAIL_PASSWORD environment secrets when left blank." : ""}
               </p>
             </TabsContent>
           </Tabs>
