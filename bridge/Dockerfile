@@ -18,14 +18,12 @@ RUN npm install --omit=dev
 
 COPY --from=builder /app/dist ./dist
 
-ENV PORT=8931
-ENV MCP_AUTH_TOKEN=change-me-in-production
 ENV IMAP_HOST=imap.ionos.com
 ENV IMAP_PORT=993
-ENV IMAP_TLS=true
+ENV IMAP_USE_TLS=true
 ENV SMTP_HOST=smtp.ionos.com
 ENV SMTP_PORT=587
-ENV SMTP_TLS=true
+ENV SMTP_USE_TLS=true
 
 EXPOSE 8931
 
