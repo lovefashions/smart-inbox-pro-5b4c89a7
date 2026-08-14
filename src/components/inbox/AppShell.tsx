@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
 import { supabase } from "@/integrations/supabase/client";
 import { syncMailbox } from "@/lib/sync.functions";
+import { generateDrafts } from "@/lib/drafts.functions";
 import { Button } from "@/components/ui/button";
 
 interface NavItem {
@@ -32,6 +33,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const queryClient = useQueryClient();
   const runSync = useServerFn(syncMailbox);
+  const runDrafts = useServerFn(generateDrafts);
   const [syncing, setSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
 
@@ -52,7 +54,12 @@ export function AppShell({ children }: { children: ReactNode }) {
     setSyncMessage(null);
     try {
       const result = await runSync();
-      setSyncMessage(result.message);
+      if (!result.ok) {
+        setSyncMessage(result.message);
+        return;
+      }
+      const drafts = await runDrafts();
+      setSyncMessage(`Imported ${result.imported}. ${drafts.message}`);
       await queryClient.invalidateQueries({ queryKey: ["emails"] });
     } catch (err) {
       setSyncMessage(err instanceof Error ? err.message : "Sync failed.");
@@ -116,7 +123,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             disabled={syncing}
           >
             <RefreshCw className={cn("size-4", syncing && "animate-spin")} />
-            Sync mailbox
+            {syncing ? "Working…" : "Sync & Generate Drafts"}
           </Button>
           <Button
             size="sm"

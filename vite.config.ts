@@ -14,7 +14,7 @@ export default defineConfig({
   },
   nitro: {
     // Build for Node.js instead of Cloudflare Workers for Railway deployment
-    presets: ["node-server"],
+    preset: "node-server",
     output: {
       dir: "dist",
       publicDir: "dist/public",
