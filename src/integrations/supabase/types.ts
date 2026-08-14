@@ -44,6 +44,56 @@ export type Database = {
         }
         Relationships: []
       }
+      app_settings: {
+        Row: {
+          created_at: string
+          from_email: string
+          from_name: string
+          id: string
+          organization_id: string
+          payment_reminders_enabled: boolean
+          paypal_link: string
+          reminder_after_days: number
+          signature: string
+          tag_rules: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          from_email?: string
+          from_name?: string
+          id?: string
+          organization_id: string
+          payment_reminders_enabled?: boolean
+          paypal_link?: string
+          reminder_after_days?: number
+          signature?: string
+          tag_rules?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          from_email?: string
+          from_name?: string
+          id?: string
+          organization_id?: string
+          payment_reminders_enabled?: boolean
+          paypal_link?: string
+          reminder_after_days?: number
+          signature?: string
+          tag_rules?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_settings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_messages: {
         Row: {
           body: string | null
