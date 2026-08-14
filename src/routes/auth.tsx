@@ -30,20 +30,25 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
 
-  const handleEmailSignIn = async () => {
+  const handleEmailSubmit = async () => {
     setLoading(true);
     setError(null);
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-    if (signInError) {
-      setError(signInError.message);
-      setLoading(false);
+    setMessage(null);
+    if (mode === "signin") {
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInError) { setError(signInError.message); setLoading(false); }
+    } else {
+      const { error: signUpError } = await supabase.auth.signUp({ email, password });
+      if (signUpError) { setError(signUpError.message); setLoading(false); }
+      else { setMessage("Check your email to confirm your account."); setLoading(false); }
     }
-    // onAuthStateChange will trigger router invalidation
   };
 
   const handleGoogleSignIn = async () => {
@@ -55,7 +60,6 @@ function AuthPage() {
         refresh_token: result.tokens.refresh_token,
       });
     }
-    // If result.redirected is true, the browser is already navigating to the provider.
   };
 
   return (
@@ -63,7 +67,9 @@ function AuthPage() {
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
           <h1 className="text-2xl font-semibold tracking-tight">Shared Inbox</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Sign in to review and send AI drafts.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {mode === "signin" ? "Sign in to review and send AI drafts." : "Create an account to get started."}
+          </p>
         </div>
 
         <div className="space-y-3">
@@ -81,20 +87,53 @@ function AuthPage() {
           </div>
         </div>
 
+        {message ? (
+          <div className="rounded-md border border-success-strong/20 bg-success-soft px-3 py-2 text-sm text-success-strong">
+            {message}
+          </div>
+        ) : null}
+        {error ? (
+          <div className="rounded-md border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {error}
+          </div>
+        ) : null}
+
         <div className="space-y-3">
           <div className="space-y-1.5">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@company.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </div>
-          {error ? <p className="text-sm text-destructive">{error}</p> : null}
-          <Button className="w-full" onClick={handleEmailSignIn} disabled={loading || !email || !password}>
-            {loading ? "Signing in…" : "Sign in"}
+          <Button className="w-full" disabled={loading || !email || !password} onClick={handleEmailSubmit}>
+            {loading ? (mode === "signin" ? "Signing in…" : "Creating account…") : mode === "signin" ? "Sign in" : "Create account"}
           </Button>
         </div>
+
+        <p className="text-center text-sm text-muted-foreground">
+          {mode === "signin" ? "Don't have an account?" : "Already have an account?"}{" "}
+          <button
+            type="button"
+            className="font-medium text-primary underline-offset-4 hover:underline"
+            onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+          >
+            {mode === "signin" ? "Sign up" : "Sign in"}
+          </button>
+        </p>
       </div>
     </main>
   );
