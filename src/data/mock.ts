@@ -21,7 +21,7 @@ export interface EmailThread {
   messages: ThreadMessage[];
   draftHtml: string;
   sources: string[];
-  kind?: "payment_reminder";
+  kind?: "payment_reminder" | undefined;
 }
 
 export interface KnowledgeEntry {
