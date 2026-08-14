@@ -14,8 +14,10 @@ A small, self-hosted MCP bridge that connects the Shared Inbox app to an IONOS (
 PORT=8931
 MCP_AUTH_TOKEN="a strong random token — paste this into the app Self-hosted tab"
 
-MAILBOX_USERNAME="sales@johnnygoodguytv.com"
-MAILBOX_PASSWORD="your-ionos-mailbox-password-or-app-password"
+# IONOS mailbox credentials. The bridge reads these directly.
+# You can also use the generic MAILBOX_USERNAME / MAILBOX_PASSWORD names.
+IONOS_EMAIL="sales@johnnygoodguytv.com"
+IONOS_EMAIL_PASSWORD="your-ionos-mailbox-password-or-app-password"
 MAILBOX_FROM="Johnny Goodguy TV Sales <sales@johnnygoodguytv.com>"
 
 IMAP_HOST="imap.ionos.com"
@@ -27,7 +29,7 @@ SMTP_PORT="587"
 SMTP_USE_TLS="true"
 ```
 
-> IONOS does not support OAuth for IMAP/SMTP, so use the mailbox password. If you have 2FA enabled on the IONOS account, create an app-specific password in the IONOS Mail Admin panel.
+> IONOS does not support OAuth for IMAP/SMTP, so use the mailbox password. If you have 2FA enabled on the IONOS account, create an app-specific password in the IONOS Mail Admin panel. The bridge will also accept `MAILBOX_USERNAME` / `MAILBOX_PASSWORD` if you prefer those names.
 
 ## Run locally
 
