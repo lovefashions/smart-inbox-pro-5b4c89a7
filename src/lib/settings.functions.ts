@@ -62,6 +62,13 @@ const updateSchema = z.object({
   reminderAfterDays: z.number().int(),
 });
 
+function getEnvCredentials() {
+  return {
+    username: process.env["IONOS_EMAIL"]?.trim() || process.env["MAILBOX_USERNAME"]?.trim() || "",
+    password: process.env["IONOS_EMAIL_PASSWORD"]?.trim() || process.env["MAILBOX_PASSWORD"]?.trim() || "",
+  };
+}
+
 export const getSettings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -77,6 +84,7 @@ export const getSettings = createServerFn({ method: "GET" })
       organizationId,
       appSettings: appSettings ?? null,
       mailbox: mailbox ?? null,
+      envCredentials: getEnvCredentials(),
     };
   });
 
