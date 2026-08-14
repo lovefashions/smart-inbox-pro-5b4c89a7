@@ -138,8 +138,8 @@ export const sendEmail = createServerFn({ method: "POST" })
           arguments: {
             to: [{ address: email.sender_email, name: email.sender_name }],
             subject: email.subject,
-            text: email.draft_html.replace(/<[^>]+>/g, " "),
-            html: email.draft_html,
+            text: (email.draft_html || "").replace(/<[^>]+>/g, " "),
+            html: email.draft_html || "",
           },
         },
       }),
