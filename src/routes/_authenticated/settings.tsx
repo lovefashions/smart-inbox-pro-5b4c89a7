@@ -331,11 +331,12 @@ function SettingsPage() {
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="s-pass">Mailbox password</Label>
-                  <SecretInput id="s-pass" value={draft.mcp.selfHosted.password} onChange={(v) => setSelf({ password: v })} />
+                  <SecretInput id="s-pass" value={draft.mcp.selfHosted.password} onChange={(v) => setSelf({ password: v })} placeholder={envCredentials?.password ? "Using IONOS_EMAIL_PASSWORD secret" : ""} />
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
                 Credentials are handed to your own MCP server — this app never opens an IMAP socket itself.
+                {envCredentials?.username ? " Username/password fall back to the IONOS_EMAIL / IONOS_EMAIL_PASSWORD environment secrets when left blank." : ""}
               </p>
             </TabsContent>
           </Tabs>
