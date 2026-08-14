@@ -10,33 +10,91 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DraftsRouteImport } from './routes/drafts'
+import { Route as KnowledgeRouteImport } from './routes/knowledge'
+import { Route as SentRouteImport } from './routes/sent'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as TrainingRouteImport } from './routes/training'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DraftsRoute = DraftsRouteImport.update({
+  id: '/drafts',
+  path: '/drafts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KnowledgeRoute = KnowledgeRouteImport.update({
+  id: '/knowledge',
+  path: '/knowledge',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SentRoute = SentRouteImport.update({
+  id: '/sent',
+  path: '/sent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrainingRoute = TrainingRouteImport.update({
+  id: '/training',
+  path: '/training',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/drafts': typeof DraftsRoute
+  '/knowledge': typeof KnowledgeRoute
+  '/sent': typeof SentRoute
+  '/settings': typeof SettingsRoute
+  '/training': typeof TrainingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/drafts': typeof DraftsRoute
+  '/knowledge': typeof KnowledgeRoute
+  '/sent': typeof SentRoute
+  '/settings': typeof SettingsRoute
+  '/training': typeof TrainingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/drafts': typeof DraftsRoute
+  '/knowledge': typeof KnowledgeRoute
+  '/sent': typeof SentRoute
+  '/settings': typeof SettingsRoute
+  '/training': typeof TrainingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    '/' | '/drafts' | '/knowledge' | '/sent' | '/settings' | '/training'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/drafts' | '/knowledge' | '/sent' | '/settings' | '/training'
+  id:
+    | '__root__'
+    | '/'
+    | '/drafts'
+    | '/knowledge'
+    | '/sent'
+    | '/settings'
+    | '/training'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DraftsRoute: typeof DraftsRoute
+  KnowledgeRoute: typeof KnowledgeRoute
+  SentRoute: typeof SentRoute
+  SettingsRoute: typeof SettingsRoute
+  TrainingRoute: typeof TrainingRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +106,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/drafts': {
+      id: '/drafts'
+      path: '/drafts'
+      fullPath: '/drafts'
+      preLoaderRoute: typeof DraftsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/knowledge': {
+      id: '/knowledge'
+      path: '/knowledge'
+      fullPath: '/knowledge'
+      preLoaderRoute: typeof KnowledgeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sent': {
+      id: '/sent'
+      path: '/sent'
+      fullPath: '/sent'
+      preLoaderRoute: typeof SentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/training': {
+      id: '/training'
+      path: '/training'
+      fullPath: '/training'
+      preLoaderRoute: typeof TrainingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DraftsRoute: DraftsRoute,
+  KnowledgeRoute: KnowledgeRoute,
+  SentRoute: SentRoute,
+  SettingsRoute: SettingsRoute,
+  TrainingRoute: TrainingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
