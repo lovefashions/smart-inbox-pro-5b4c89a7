@@ -10,11 +10,12 @@ import {
   type AgentKey,
   type AppSettings,
   type EmailThread,
+  type EmailStatus,
   type HistoricalEmail,
   type KnowledgeEntry,
   type VoiceProfile,
 } from "@/data/mock";
-import { listEmails, updateDraft, sendEmail, discardEmail } from "@/lib/emails.functions";
+import { listEmails, updateDraft as updateDraftFn, sendEmail as sendEmailFn, discardEmail as discardEmailFn } from "@/lib/emails.functions";
 
 export interface SentItem {
   id: string;
@@ -63,7 +64,7 @@ function toThread(row: Awaited<ReturnType<typeof listEmails>>[number]): EmailThr
     subject: row.subject,
     snippet: row.snippet,
     receivedAt: row.received_at,
-    status: row.status,
+    status: row.status as EmailStatus,
     unread: row.unread,
     messages: row.messages.map((m) => ({
       id: m.id,
@@ -71,7 +72,7 @@ function toThread(row: Awaited<ReturnType<typeof listEmails>>[number]): EmailThr
       fromEmail: m.fromEmail,
       body: m.body,
       sentAt: m.sentAt,
-      direction: m.direction,
+      direction: m.direction as "inbound" | "outbound",
     })),
     draftHtml: row.draft_html,
     sources: row.sources,
@@ -111,9 +112,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       }));
   }, [emailRows]);
 
-  const doUpdateDraft = useServerFn(updateDraft);
-  const doSendEmail = useServerFn(sendEmail);
-  const doDiscardEmail = useServerFn(discardEmail);
+  const doUpdateDraft = useServerFn(updateDraftFn);
+  const doSendEmail = useServerFn(sendEmailFn);
+  const doDiscardEmail = useServerFn(discardEmailFn);
 
   const updateDraftMutation = useMutation({
     mutationFn: (args: { id: string; html: string }) => doUpdateDraft({ data: args }),
