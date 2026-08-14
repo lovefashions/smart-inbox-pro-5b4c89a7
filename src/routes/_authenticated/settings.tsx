@@ -165,6 +165,7 @@ function SecretInput({
 function SettingsPage() {
   const { addAgentKey, revokeAgentKey, settings: appSettings } = useAppState();
   const [draft, setDraft] = useState<AppSettings>(defaultSettings);
+  const [envCredentials, setEnvCredentials] = useState<{ username?: string; password?: string } | null>(null);
   const [test, setTest] = useState<TestState>({ status: "idle", tools: [], message: "" });
   const [save, setSave] = useState<SaveState>({ status: "idle", message: "" });
   const runMailboxTest = useServerFn(testMailboxConnection);
@@ -179,7 +180,10 @@ function SettingsPage() {
   });
 
   useEffect(() => {
-    if (dbSettings) setDraft(toAppSettings(dbSettings));
+    if (dbSettings) {
+      setDraft(toAppSettings(dbSettings));
+      setEnvCredentials(dbSettings.envCredentials ?? null);
+    }
   }, [dbSettings]);
 
   const appMcpUrl =
