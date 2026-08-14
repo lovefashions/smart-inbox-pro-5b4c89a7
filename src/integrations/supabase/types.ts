@@ -14,7 +14,281 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      agent_keys: {
+        Row: {
+          created_at: string
+          id: string
+          key_hash: string
+          label: string
+          last_used: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key_hash: string
+          label: string
+          last_used?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key_hash?: string
+          label?: string
+          last_used?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      email_messages: {
+        Row: {
+          body: string | null
+          created_at: string
+          direction: string
+          email_id: string
+          from_email: string
+          from_name: string
+          id: string
+          sent_at: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          direction?: string
+          email_id: string
+          from_email: string
+          from_name: string
+          id?: string
+          sent_at?: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          direction?: string
+          email_id?: string
+          from_email?: string
+          from_name?: string
+          id?: string
+          sent_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_messages_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      emails: {
+        Row: {
+          body: string | null
+          created_at: string
+          draft_html: string | null
+          external_id: string | null
+          id: string
+          kind: string | null
+          received_at: string
+          sender_email: string
+          sender_name: string
+          snippet: string | null
+          sources: string[] | null
+          status: string
+          subject: string
+          unread: boolean
+          updated_at: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          draft_html?: string | null
+          external_id?: string | null
+          id?: string
+          kind?: string | null
+          received_at?: string
+          sender_email: string
+          sender_name: string
+          snippet?: string | null
+          sources?: string[] | null
+          status?: string
+          subject: string
+          unread?: boolean
+          updated_at?: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          draft_html?: string | null
+          external_id?: string | null
+          id?: string
+          kind?: string | null
+          received_at?: string
+          sender_email?: string
+          sender_name?: string
+          snippet?: string | null
+          sources?: string[] | null
+          status?: string
+          subject?: string
+          unread?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      historical_emails: {
+        Row: {
+          body_chunk: string
+          created_at: string
+          embedding: string | null
+          id: string
+          included: boolean
+          sent_at: string | null
+          source_account: string
+          thread_subject: string
+          updated_at: string
+        }
+        Insert: {
+          body_chunk: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          included?: boolean
+          sent_at?: string | null
+          source_account: string
+          thread_subject: string
+          updated_at?: string
+        }
+        Update: {
+          body_chunk?: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          included?: boolean
+          sent_at?: string | null
+          source_account?: string
+          thread_subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      knowledge_base: {
+        Row: {
+          content: string
+          created_at: string
+          embedding: string | null
+          id: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      mailbox_connections: {
+        Row: {
+          auth_token: string | null
+          created_at: string
+          endpoint_url: string | null
+          id: string
+          imap_host: string | null
+          imap_port: string | null
+          is_active: boolean
+          password: string | null
+          provider_mode: string
+          provider_name: string | null
+          smtp_host: string | null
+          smtp_port: string | null
+          updated_at: string
+          username: string | null
+        }
+        Insert: {
+          auth_token?: string | null
+          created_at?: string
+          endpoint_url?: string | null
+          id?: string
+          imap_host?: string | null
+          imap_port?: string | null
+          is_active?: boolean
+          password?: string | null
+          provider_mode?: string
+          provider_name?: string | null
+          smtp_host?: string | null
+          smtp_port?: string | null
+          updated_at?: string
+          username?: string | null
+        }
+        Update: {
+          auth_token?: string | null
+          created_at?: string
+          endpoint_url?: string | null
+          id?: string
+          imap_host?: string | null
+          imap_port?: string | null
+          is_active?: boolean
+          password?: string | null
+          provider_mode?: string
+          provider_name?: string | null
+          smtp_host?: string | null
+          smtp_port?: string | null
+          updated_at?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      voice_profiles: {
+        Row: {
+          avg_length: string | null
+          created_at: string
+          greeting: string | null
+          id: string
+          is_active: boolean
+          phrases: string[] | null
+          signoff: string | null
+          tone: string | null
+          updated_at: string
+        }
+        Insert: {
+          avg_length?: string | null
+          created_at?: string
+          greeting?: string | null
+          id?: string
+          is_active?: boolean
+          phrases?: string[] | null
+          signoff?: string | null
+          tone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avg_length?: string | null
+          created_at?: string
+          greeting?: string | null
+          id?: string
+          is_active?: boolean
+          phrases?: string[] | null
+          signoff?: string | null
+          tone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
