@@ -1,22 +1,50 @@
-# Test IMAP/SMTP from the Settings page
+# Current connection status: NOT connected
 
-## What you get
-A **Test IMAP/SMTP** button in the self-hosted connection form that actually logs into the mailbox (IMAP) and verifies the outgoing server (SMTP), then shows a clear result panel:
+Two independent checks say the mailbox is not wired up yet.
 
-- Green: which folders were found on IMAP, and that SMTP accepted the login.
-- Red: the exact error the mail server returned, plus a plain-language hint of what to change (wrong password, wrong port, TLS mismatch, bridge unreachable, etc.).
+## What I checked
 
-## How it works
-1. **Bridge (`bridge/`)** — add a `test_connection` tool that:
-   - connects to IMAP with the configured host/port/user/password and lists folders,
-   - runs an SMTP `verify()` handshake,
-   - returns per-protocol `{ ok, error }` instead of throwing, so the app can display detail.
-2. **App server function** — new `testImapSmtp` in `src/lib/mailbox.functions.ts` that calls the bridge's `test_connection` over JSON-RPC using the Server URL + Auth Token currently typed in the form (no save required first).
-3. **Settings UI** (`src/routes/_authenticated/settings.tsx`) — new button next to the existing MCP "Test Connection", with a result card showing:
-   - IMAP row and SMTP row, each pass/fail with the raw server message,
-   - a hint line mapped from common failure signatures (401 from bridge, `AUTH` failure, `ECONNREFUSED`, TLS/port mismatch, missing credentials),
-   - next step text, e.g. "Set MCP_AUTH_TOKEN in Railway to match" or "IONOS requires the full email address as username".
+1. **The Railway bridge** — `https://smart-inbox-pro-5b4c89a7-production.up.railway.app/health`
+   returns HTTP 200 but with an **empty body** (`content-length: 0`), and `/mcp` returns nothing at all.
+   A working bridge must answer `/health` with `{"ok":true}` and answer `/mcp` with a JSON tool list.
+   So Railway's edge is up, but the bridge process behind it is not serving requests.
 
-## Notes
-- Passwords stay server-side; the browser only ever sees the result text.
-- You'll need to redeploy the Railway bridge after this change for the new tool to exist; until then the button will report "bridge does not expose test_connection yet" rather than a vague failure.
+2. **The app's saved connection** — the `mailbox_connections` table is **empty**.
+   Even if the bridge were healthy, the app has no server URL, token, or mailbox credentials saved,
+   so nothing in the app can read or send mail yet.
+
+What *is* working: sign-in, the inbox/drafts/settings UI, and the saved sender settings
+(from name, from address, signature).
+
+## Plan to get it connected
+
+### Step 1 — Make the Railway bridge actually respond (you, in Railway)
+- Service → **Settings → Source → Root Directory** = `bridge`
+- Service → **Settings → Networking** → confirm the public domain targets the port the app binds
+  (the bridge reads `PORT`; if Railway's target port is fixed at 8931, add a variable `PORT=8931`)
+- Variables required: `MCP_AUTH_TOKEN`, `MAILBOX_USERNAME` (or `IONOS_EMAIL`),
+  `MAILBOX_PASSWORD` (or `IONOS_EMAIL_PASSWORD`), `MAILBOX_FROM`
+- Redeploy, then check the deploy logs for `Email MCP bridge listening on port ...`
+
+If the deploy is failing instead of running, it is most likely the TypeScript build errors in
+`bridge/src/imap.ts` flagged earlier. I can fix those typings as part of this work.
+
+### Step 2 — Save the connection in Settings (me + you)
+Once `/health` returns `{"ok":true}`:
+- Server URL: `https://smart-inbox-pro-5b4c89a7-production.up.railway.app/mcp`
+- Auth Token: the same `MCP_AUTH_TOKEN`
+- IMAP `imap.ionos.com:993`, SMTP `smtp.ionos.com:587`
+- Username `sales@johnnygoodguytv.com`, plus the mailbox password
+- Click Save, then Test Connection
+
+### Step 3 — Diagnostics so this is self-service next time
+Add a **Test IMAP/SMTP** button to the self-hosted form that logs into IMAP (lists folders) and
+verifies SMTP, and shows a detailed result panel: per-protocol pass/fail, the exact server error
+text, and a plain-language next step (bad password, wrong port, TLS mismatch, bridge unreachable,
+token mismatch). This requires a small `test_connection` tool added to the bridge plus a redeploy.
+
+### Technical notes
+- New bridge tool `test_connection` in `bridge/src/index.ts` returning `{ imap: {ok,error}, smtp: {ok,error} }` instead of throwing.
+- New server function `testImapSmtp` in `src/lib/mailbox.functions.ts` that calls it over JSON-RPC with the values currently typed into the form.
+- Settings UI (`src/routes/_authenticated/settings.tsx`) gains the button, result rows, and hint mapping.
+- Credentials never reach the browser; only result text does.
