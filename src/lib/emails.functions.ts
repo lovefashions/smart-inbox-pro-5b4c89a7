@@ -56,7 +56,7 @@ export const listEmails = createServerFn({ method: "GET" })
     const supabase = context.supabase as TypedSupabase;
     const organizationId = await getOrganizationId(supabase, context.userId);
 
-    const { data, error } = await supabase
+    const { data: emails, error } = await supabase
       .from("emails")
       .select("*")
       .eq("organization_id", organizationId)
@@ -64,7 +64,60 @@ export const listEmails = createServerFn({ method: "GET" })
 
     if (error) throw error;
 
-    return listEmailsOutput.parse(data ?? []);
+    const emailIds = (emails ?? []).map((e) => e.id);
+    let messages: Database["public"]["Tables"]["email_messages"]["Row"][] = [];
+    if (emailIds.length) {
+      const { data: msgs } = await supabase
+        .from("email_messages")
+        .select("*")
+        .in("email_id", emailIds)
+        .eq("organization_id", organizationId)
+        .order("sent_at", { ascending: true });
+      messages = msgs ?? [];
+    }
+
+    const rows = (emails ?? []).map((email) => {
+      const emailMessages = messages.filter((m) => m.email_id === email.id);
+      const messagesList =
+        emailMessages.length > 0
+          ? emailMessages.map((m) => ({
+              id: m.id,
+              from: m.from_name || m.from_email,
+              fromEmail: m.from_email,
+              body: m.body || "",
+              sentAt: m.sent_at,
+              direction: m.direction === "outbound" ? "outbound" : "inbound",
+            }))
+          : [
+              {
+                id: email.id,
+                from: email.sender_name,
+                fromEmail: email.sender_email,
+                body: email.body || "",
+                sentAt: email.received_at,
+                direction: "inbound" as const,
+              },
+            ];
+
+      return {
+        id: email.id,
+        external_id: email.external_id,
+        sender: email.sender_name,
+        sender_email: email.sender_email,
+        subject: email.subject,
+        snippet: email.snippet || "",
+        body: email.body || "",
+        status: email.status,
+        unread: email.unread,
+        draft_html: email.draft_html || "",
+        sources: email.sources || [],
+        received_at: email.received_at,
+        kind: email.kind || "inbound",
+        messages: messagesList,
+      };
+    });
+
+    return rows;
   });
 
 const updateDraftSchema = z.object({
