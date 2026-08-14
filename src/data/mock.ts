@@ -1,4 +1,4 @@
-export type EmailStatus = "draft_ready" | "needs_review" | "sent";
+export type EmailStatus = "needs_review" | "draft" | "approved" | "sent" | "archived";
 
 export interface ThreadMessage {
   id: string;
