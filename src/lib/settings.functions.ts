@@ -82,7 +82,7 @@ export const getSettings = createServerFn({ method: "GET" })
 
 export const updateSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => updateSchema.parse(data))
+  .validator((data: unknown) => updateSchema.parse(data))
   .handler(async ({ data, context }) => {
     const supabase = context.supabase as TypedSupabase;
     const organizationId = await getOrganizationId(supabase, context.userId);
