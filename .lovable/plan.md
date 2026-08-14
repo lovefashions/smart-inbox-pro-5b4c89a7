@@ -1,39 +1,22 @@
-# Deploy the IMAP bridge to Railway
+# Set up GitHub sync for the project
 
-Pulling stays the approach: the app keeps reading `sales@johnnygoodguytv.com` over IMAP at IONOS, MX records stay where they are, and nothing about the domain changes. The only missing piece is a public home for the bridge in `bridge/`. Railway can run it directly from the repo.
+Before Railway can deploy from a GitHub repo, the project needs to be synced to GitHub. This is a one-time setup in the Lovable UI.
 
-## Steps you do in Railway
+## What to do
 
-1. Railway -> **New Project** -> **Deploy from GitHub repo** -> pick this repo.
-2. In the service settings set **Root Directory** to `bridge`. Railway then detects Node and runs the build/start scripts already in `bridge/package.json`.
-3. Add these variables under **Variables**:
+1. Open the Lovable editor for this project.
+2. Click the **Plus (+)** menu at the bottom left of the chat input → **GitHub** → **Connect project**.
+3. Authorize the Lovable GitHub App when GitHub asks.
+4. Choose the GitHub account/organization where you want the repo.
+5. Click **Create Repository** — this will push the current project code to a new GitHub repo (including the `bridge/` folder).
 
-```text
-MCP_AUTH_TOKEN        (generate a long random string - you also paste this into the app)
-IONOS_EMAIL           sales@johnnygoodguytv.com
-IONOS_EMAIL_PASSWORD  (IONOS mailbox password, or app password if 2FA is on)
-MAILBOX_FROM          Johnny Goodguy TV Sales <sales@johnnygoodguytv.com>
-IMAP_HOST             imap.ionos.com
-IMAP_PORT             993
-SMTP_HOST             smtp.ionos.com
-SMTP_PORT             587
-```
+## What happens after
 
-4. **Settings -> Networking -> Generate Domain**. You get something like `email-mcp-bridge-production.up.railway.app`. Railway terminates HTTPS for you.
-5. Confirm it is alive: open `https://<your-domain>/health` in a browser, expect `{"ok":true}`.
+- Any future code changes in Lovable automatically push to GitHub.
+- You can also push changes from GitHub back to Lovable (two-way sync).
+- Railway can then deploy from that GitHub repo by selecting the repo and setting the root directory to `bridge`.
 
-## Steps I do in the app
+## Out of scope
 
-1. Add `bridge/railway.json` and a `PORT`-aware start so Railway's injected port is used instead of the hard-coded 8931, plus a `bridge/.env.example`.
-2. Add a Railway section to `bridge/README.md` mirroring the steps above.
-3. In **Settings -> Self-hosted**, prefill the MCP server URL field with a Railway-shaped placeholder and add short helper text ("paste the Railway domain + `/mcp`"), so the connection test target is obvious.
-4. No database or schema changes - `syncMailbox` already talks to whatever endpoint is saved.
-
-## After deploy
-
-In the app: **Settings -> Self-hosted** -> URL `https://<your-domain>/mcp`, token = the `MCP_AUTH_TOKEN` you set -> **Test connection**. It should report 4 tools. Then **Sync inbox** pulls unread mail from IONOS into the inbox.
-
-## Notes
-
-- Railway bills by usage; this service idles at near-zero CPU and costs very little.
-- If the connection test fails with an auth error, it is almost always the IONOS password - IONOS requires an app password once 2FA is enabled on the account.
+- This does not set up the actual Railway deploy or the bridge environment variables — that is the next step after GitHub is connected.
+- No project code changes are needed for this step.
