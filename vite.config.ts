@@ -12,4 +12,14 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  nitro: {
+    // Build for Node.js instead of Cloudflare Workers for Railway deployment
+    presets: ["node-server"],
+    output: {
+      dir: "dist",
+      publicDir: "dist/public",
+      serverDir: "dist/server",
+    },
+  },
 });
+
