@@ -315,7 +315,7 @@ export const mockVoice: VoiceProfile = {
 
 export const defaultSettings: AppSettings = {
   mcp: {
-    mode: "managed",
+    mode: "self_hosted",
     managed: {
       providerName: "Agently",
       endpointUrl: "https://mcp.agently.com/email/v1",
