@@ -17,7 +17,7 @@ interface NavItem {
   to: string;
   label: string;
   icon: LucideIcon;
-  count?: number;
+  count?: number | undefined;
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
