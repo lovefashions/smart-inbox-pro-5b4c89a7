@@ -105,7 +105,7 @@ export const syncMailbox = createServerFn({ method: "POST" })
       return { ok: false, imported: 0, message: "No mailbox connection configured." };
     }
 
-    try {
+    const endpointUrl = connection.endpoint_url;
       const result = await mcpCall(connection, "tools/call", {
         name: "read_emails",
         arguments: { folder: "INBOX", unseenOnly: true, limit: 50 },
