@@ -46,8 +46,16 @@ function AuthPage() {
     // onAuthStateChange will trigger router invalidation
   };
 
-  const handleGoogleSignIn = () => {
-    void lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+  const handleGoogleSignIn = async () => {
+    const result = await lovable.signInWithOAuth("google", { redirect_uri: window.location.origin });
+    if (result.error) { setError(result.error.message); return; }
+    if (result.tokens) {
+      await supabase.auth.setSession({
+        access_token: result.tokens.access_token,
+        refresh_token: result.tokens.refresh_token,
+      });
+    }
+    // If result.redirected is true, the browser is already navigating to the provider.
   };
 
   return (
