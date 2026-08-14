@@ -315,7 +315,7 @@ export const mockVoice: VoiceProfile = {
 
 export const defaultSettings: AppSettings = {
   mcp: {
-    mode: "managed",
+    mode: "self_hosted",
     managed: {
       providerName: "Agently",
       endpointUrl: "https://mcp.agently.com/email/v1",
@@ -324,9 +324,9 @@ export const defaultSettings: AppSettings = {
     selfHosted: {
       serverUrl: "http://localhost:8931/mcp",
       authToken: "",
-      imapHost: "imap.johnnygoodguytv.com",
+      imapHost: "imap.ionos.com",
       imapPort: "993",
-      smtpHost: "smtp.johnnygoodguytv.com",
+      smtpHost: "smtp.ionos.com",
       smtpPort: "587",
       username: "sales@johnnygoodguytv.com",
       password: "",
