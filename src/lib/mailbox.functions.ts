@@ -17,7 +17,7 @@ export interface MailboxTestResult {
  * runtime so the auth token never leaves the backend and CORS never applies.
  */
 export const testMailboxConnection = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => schema.parse(data))
+  .validator((data: unknown) => schema.parse(data))
   .handler(async ({ data }): Promise<MailboxTestResult> => {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",

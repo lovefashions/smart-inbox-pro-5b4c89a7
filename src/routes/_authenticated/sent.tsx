@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/inbox/AppShell";
 import { useAppState } from "@/state/app-state";
 
-export const Route = createFileRoute("/sent")({
+export const Route = createFileRoute("/_authenticated/sent")({
   head: () => ({
     meta: [
       { title: "Sent Replies — Shared Inbox" },

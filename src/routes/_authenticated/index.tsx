@@ -10,7 +10,7 @@ import { parseTags, TAG_STYLES } from "@/lib/tags";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
       { title: "Shared Inbox — AI Email Reply Assistant" },
@@ -30,15 +30,19 @@ export const Route = createFileRoute("/")({
 });
 
 const STATUS_LABEL: Record<EmailThread["status"], string> = {
-  draft_ready: "AI Draft Ready",
+  draft: "AI Draft Ready",
   needs_review: "Needs Review",
+  approved: "Approved",
   sent: "Sent",
+  archived: "Archived",
 };
 
 const STATUS_STYLE: Record<EmailThread["status"], string> = {
-  draft_ready: "bg-accent-soft text-accent-strong",
+  draft: "bg-accent-soft text-accent-strong",
   needs_review: "bg-warning-soft text-warning-strong",
+  approved: "bg-primary/10 text-primary",
   sent: "bg-success-soft text-success-strong",
+  archived: "bg-muted text-muted-foreground",
 };
 
 function timeLabel(iso: string) {
