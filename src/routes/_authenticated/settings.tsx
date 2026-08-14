@@ -15,7 +15,7 @@ import { testMailboxConnection } from "@/lib/mailbox.functions";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
 
-export const Route = createFileRoute("/settings")({
+export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
     meta: [
       { title: "Server Settings — Shared Inbox" },

@@ -4,7 +4,7 @@ import { AppShell } from "@/components/inbox/AppShell";
 import { DraftCard } from "@/components/inbox/DraftCard";
 import { useAppState } from "@/state/app-state";
 
-export const Route = createFileRoute("/drafts")({
+export const Route = createFileRoute("/_authenticated/drafts")({
   head: () => ({
     meta: [
       { title: "Pending AI Drafts — Shared Inbox" },

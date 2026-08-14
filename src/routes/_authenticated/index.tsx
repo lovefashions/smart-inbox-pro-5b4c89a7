@@ -10,7 +10,7 @@ import { parseTags, TAG_STYLES } from "@/lib/tags";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
       { title: "Shared Inbox — AI Email Reply Assistant" },
