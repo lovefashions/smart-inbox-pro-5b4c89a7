@@ -74,6 +74,7 @@ function toAppSettings(db: Awaited<ReturnType<typeof getSettings>>): AppSettings
   const base = defaultSettings;
   const app = db.appSettings;
   const mbx = db.mailbox;
+  const env = db.envCredentials;
 
   const mcp: McpSettings = mbx
     ? {
@@ -90,11 +91,18 @@ function toAppSettings(db: Awaited<ReturnType<typeof getSettings>>): AppSettings
           imapPort: mbx.imap_port || base.mcp.selfHosted.imapPort,
           smtpHost: mbx.smtp_host || base.mcp.selfHosted.smtpHost,
           smtpPort: mbx.smtp_port || base.mcp.selfHosted.smtpPort,
-          username: mbx.username || base.mcp.selfHosted.username,
-          password: mbx.password || "",
+          username: mbx.username || env?.username || base.mcp.selfHosted.username,
+          password: mbx.password || env?.password || "",
         },
       }
-    : base.mcp;
+    : {
+        ...base.mcp,
+        selfHosted: {
+          ...base.mcp.selfHosted,
+          username: env?.username || base.mcp.selfHosted.username,
+          password: env?.password || "",
+        },
+      };
 
   return {
     mcp,
