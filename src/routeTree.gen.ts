@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DraftsRouteImport } from './routes/drafts'
+import { Route as KnowledgeRouteImport } from './routes/knowledge'
 import { Route as SentRouteImport } from './routes/sent'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const DraftsRoute = DraftsRouteImport.update({
   path: '/drafts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KnowledgeRoute = KnowledgeRouteImport.update({
+  id: '/knowledge',
+  path: '/knowledge',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SentRoute = SentRouteImport.update({
   id: '/sent',
   path: '/sent',
@@ -32,30 +38,34 @@ const SentRoute = SentRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/drafts': typeof DraftsRoute
+  '/knowledge': typeof KnowledgeRoute
   '/sent': typeof SentRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/drafts': typeof DraftsRoute
+  '/knowledge': typeof KnowledgeRoute
   '/sent': typeof SentRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/drafts': typeof DraftsRoute
+  '/knowledge': typeof KnowledgeRoute
   '/sent': typeof SentRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/drafts' | '/sent'
+  fullPaths: '/' | '/drafts' | '/knowledge' | '/sent'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/drafts' | '/sent'
-  id: '__root__' | '/' | '/drafts' | '/sent'
+  to: '/' | '/drafts' | '/knowledge' | '/sent'
+  id: '__root__' | '/' | '/drafts' | '/knowledge' | '/sent'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DraftsRoute: typeof DraftsRoute
+  KnowledgeRoute: typeof KnowledgeRoute
   SentRoute: typeof SentRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DraftsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/knowledge': {
+      id: '/knowledge'
+      path: '/knowledge'
+      fullPath: '/knowledge'
+      preLoaderRoute: typeof KnowledgeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sent': {
       id: '/sent'
       path: '/sent'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DraftsRoute: DraftsRoute,
+  KnowledgeRoute: KnowledgeRoute,
   SentRoute: SentRoute,
 }
 export const routeTree = rootRouteImport
