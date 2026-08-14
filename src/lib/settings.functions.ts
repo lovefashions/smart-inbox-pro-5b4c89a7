@@ -1,9 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 
-async function getOrganizationId(supabase: Database["public"]["Tables"]) {
+type TypedSupabase = SupabaseClient<Database>;
+
+async function getOrganizationId(supabase: TypedSupabase, userId: string): Promise<string> {
   const { data: memberships } = await supabase
     .from("user_organizations")
     .select("organization_id")
@@ -12,7 +15,6 @@ async function getOrganizationId(supabase: Database["public"]["Tables"]) {
   const membership = memberships?.[0];
   if (membership?.organization_id) return membership.organization_id;
 
-  // No membership yet — create the default organization and join it.
   const { data: org } = await supabase
     .from("organizations")
     .insert({ name: "My Shared Inbox" })
@@ -22,7 +24,7 @@ async function getOrganizationId(supabase: Database["public"]["Tables"]) {
   if (!org?.id) throw new Error("Could not create organization");
 
   await supabase.from("user_organizations").insert({
-    user_id: (await supabase.auth.getUser()).data.user?.id ?? "",
+    user_id: userId,
     organization_id: org.id,
     role: "owner",
   });
@@ -63,12 +65,12 @@ const updateSchema = z.object({
 export const getSettings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const supabase = context.supabase;
-    const organizationId = await getOrganizationId(supabase);
+    const supabase = context.supabase as TypedSupabase;
+    const organizationId = await getOrganizationId(supabase, context.userId);
 
     const [{ data: appSettings }, { data: mailbox }] = await Promise.all([
-      supabase.from("app_settings").select("*").eq("organization_id", organizationId).single(),
-      supabase.from("mailbox_connections").select("*").eq("organization_id", organizationId).single(),
+      supabase.from("app_settings").select("*").eq("organization_id", organizationId).maybeSingle(),
+      supabase.from("mailbox_connections").select("*").eq("organization_id", organizationId).maybeSingle(),
     ]);
 
     return {
@@ -82,8 +84,8 @@ export const updateSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => updateSchema.parse(data))
   .handler(async ({ data, context }) => {
-    const supabase = context.supabase;
-    const organizationId = await getOrganizationId(supabase);
+    const supabase = context.supabase as TypedSupabase;
+    const organizationId = await getOrganizationId(supabase, context.userId);
 
     const {
       mcp,
