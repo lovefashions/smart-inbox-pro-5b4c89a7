@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { Check, Copy, Eye, EyeOff, Loader2, Plus, Trash2, X } from "lucide-react";
 import { useState } from "react";
 
@@ -10,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { EXPORTED_TOOLS, MCP_TOOLS, type ConnectionMode } from "@/data/mock";
+import { testMailboxConnection } from "@/lib/mailbox.functions";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
 
@@ -32,7 +34,11 @@ export const Route = createFileRoute("/settings")({
   component: SettingsPage,
 });
 
-type TestState = { status: "idle" | "running" | "ok" | "fail"; tools: string[] };
+type TestState = {
+  status: "idle" | "running" | "ok" | "fail";
+  tools: string[];
+  message: string;
+};
 
 function SecretInput({
   id,
@@ -71,7 +77,8 @@ function SecretInput({
 function SettingsPage() {
   const { settings, updateSettings, addAgentKey, revokeAgentKey } = useAppState();
   const { mcp } = settings;
-  const [test, setTest] = useState<TestState>({ status: "idle", tools: [] });
+  const [test, setTest] = useState<TestState>({ status: "idle", tools: [], message: "" });
+  const runMailboxTest = useServerFn(testMailboxConnection);
   const [newKeyLabel, setNewKeyLabel] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
 
@@ -85,17 +92,29 @@ function SettingsPage() {
   const setSelf = (patch: Partial<typeof mcp.selfHosted>) =>
     updateSettings({ mcp: { ...mcp, selfHosted: { ...mcp.selfHosted, ...patch } } });
 
-  const runTest = () => {
-    setTest({ status: "running", tools: [] });
+  const runTest = async () => {
     const endpoint =
       mcp.mode === "managed" ? mcp.managed.endpointUrl : mcp.selfHosted.serverUrl;
-    window.setTimeout(() => {
-      if (!endpoint.trim()) {
-        setTest({ status: "fail", tools: [] });
-        return;
-      }
-      setTest({ status: "ok", tools: MCP_TOOLS.map((t) => t.name) });
-    }, 900);
+    const token = mcp.mode === "managed" ? mcp.managed.apiKey : mcp.selfHosted.authToken;
+    if (!endpoint.trim()) {
+      setTest({ status: "fail", tools: [], message: "No endpoint URL set for this connection type." });
+      return;
+    }
+    setTest({ status: "running", tools: [], message: "" });
+    try {
+      const result = await runMailboxTest({ data: { url: endpoint.trim(), token: token.trim() } });
+      setTest({
+        status: result.ok ? "ok" : "fail",
+        tools: result.tools,
+        message: result.message,
+      });
+    } catch (err) {
+      setTest({
+        status: "fail",
+        tools: [],
+        message: err instanceof Error ? err.message : "Connection test failed.",
+      });
+    }
   };
 
   const copy = (value: string, id: string) => {
@@ -239,7 +258,12 @@ function SettingsPage() {
           </Tabs>
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
-            <Button size="sm" variant="outline" onClick={runTest} disabled={test.status === "running"}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => void runTest()}
+              disabled={test.status === "running"}
+            >
               {test.status === "running" ? (
                 <Loader2 className="size-3.5 animate-spin" />
               ) : null}
@@ -247,13 +271,12 @@ function SettingsPage() {
             </Button>
             {test.status === "ok" ? (
               <span className="text-xs text-success-strong">
-                Connected — {test.tools.join(", ")} exposed
+                {test.message}
+                {test.tools.length ? ` — ${test.tools.join(", ")}` : ""}
               </span>
             ) : null}
             {test.status === "fail" ? (
-              <span className="text-xs text-destructive">
-                No endpoint URL set for this connection type.
-              </span>
+              <span className="text-xs text-destructive">{test.message}</span>
             ) : null}
           </div>
 
