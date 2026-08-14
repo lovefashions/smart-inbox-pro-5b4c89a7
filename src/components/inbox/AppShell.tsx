@@ -1,4 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import {
   Inbox,
   FileEdit,
@@ -6,12 +8,17 @@ import {
   BookOpen,
   Waves,
   Settings as SettingsIcon,
+  RefreshCw,
+  LogOut,
   type LucideIcon,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
+import { supabase } from "@/integrations/supabase/client";
+import { syncMailbox } from "@/lib/sync.functions";
+import { Button } from "@/components/ui/button";
 
 interface NavItem {
   to: string;
