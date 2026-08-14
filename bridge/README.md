@@ -68,8 +68,8 @@ cd bridge
 docker build -t email-mcp-bridge .
 docker run -p 8931:8931 \
   -e MCP_AUTH_TOKEN=... \
-  -e MAILBOX_USERNAME=... \
-  -e MAILBOX_PASSWORD=... \
+  -e IONOS_EMAIL=... \
+  -e IONOS_EMAIL_PASSWORD=... \
   -e MAILBOX_FROM=... \
   email-mcp-bridge
 ```
