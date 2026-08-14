@@ -342,6 +342,68 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          amount: number
+          billing_period: string
+          created_at: string
+          currency: string
+          customer_email: string
+          customer_name: string
+          id: string
+          last_reminder_sent_at: string | null
+          notes: string | null
+          organization_id: string
+          plan_name: string
+          reminder_count: number
+          renewal_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          billing_period?: string
+          created_at?: string
+          currency?: string
+          customer_email: string
+          customer_name?: string
+          id?: string
+          last_reminder_sent_at?: string | null
+          notes?: string | null
+          organization_id?: string
+          plan_name?: string
+          reminder_count?: number
+          renewal_date: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          billing_period?: string
+          created_at?: string
+          currency?: string
+          customer_email?: string
+          customer_name?: string
+          id?: string
+          last_reminder_sent_at?: string | null
+          notes?: string | null
+          organization_id?: string
+          plan_name?: string
+          reminder_count?: number
+          renewal_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_organizations: {
         Row: {
           created_at: string
