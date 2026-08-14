@@ -104,7 +104,7 @@ export const updateSettings = createServerFn({ method: "POST" })
         from_name: fromName,
         from_email: fromEmail,
         signature,
-        tag_rules: tagRules as unknown as Database["public"]["Tables"]["app_settings"]["Insert"]["tag_rules"],
+        tag_rules: tagRules as unknown as Database["public"]["Tables"]["app_settings"]["Insert"]["tag_rules"] & {},
         paypal_link: paypalLink,
         payment_reminders_enabled: paymentRemindersEnabled,
         reminder_after_days: reminderAfterDays,
