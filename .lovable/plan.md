@@ -1,41 +1,39 @@
-# Cloudflare Email Routing -> mail intake endpoint
+# Deploy the IMAP bridge to Railway
 
-Right now the app only has one inbound path: the self-hosted IMAP bridge in `bridge/`, called by `syncMailbox` in `src/lib/sync.functions.ts`. There is no `src/routes/api/` folder yet, so no intake endpoint exists. That is why nothing is arriving — the bridge has to be deployed and running.
+Pulling stays the approach: the app keeps reading `sales@johnnygoodguytv.com` over IMAP at IONOS, MX records stay where they are, and nothing about the domain changes. The only missing piece is a public home for the bridge in `bridge/`. Railway can run it directly from the repo.
 
-The Cloudflare route removes that requirement entirely: mail is pushed to the app instead of the app pulling it. No server to host, no IMAP socket.
+## Steps you do in Railway
 
-## How it works
+1. Railway -> **New Project** -> **Deploy from GitHub repo** -> pick this repo.
+2. In the service settings set **Root Directory** to `bridge`. Railway then detects Node and runs the build/start scripts already in `bridge/package.json`.
+3. Add these variables under **Variables**:
 
 ```text
-sender -> MX (Cloudflare) -> Email Worker -> POST /api/public/email-intake -> emails table -> inbox UI
+MCP_AUTH_TOKEN        (generate a long random string - you also paste this into the app)
+IONOS_EMAIL           sales@johnnygoodguytv.com
+IONOS_EMAIL_PASSWORD  (IONOS mailbox password, or app password if 2FA is on)
+MAILBOX_FROM          Johnny Goodguy TV Sales <sales@johnnygoodguytv.com>
+IMAP_HOST             imap.ionos.com
+IMAP_PORT             993
+SMTP_HOST             smtp.ionos.com
+SMTP_PORT             587
 ```
 
-## What gets built
+4. **Settings -> Networking -> Generate Domain**. You get something like `email-mcp-bridge-production.up.railway.app`. Railway terminates HTTPS for you.
+5. Confirm it is alive: open `https://<your-domain>/health` in a browser, expect `{"ok":true}`.
 
-1. **Intake endpoint** at `src/routes/api/public/email-intake.ts`
-   - Accepts the raw MIME message posted by the Cloudflare Email Worker.
-   - Rejects anything without the correct shared secret header (stored as a project secret, timing-safe compare).
-   - Parses sender, recipient, subject, text/HTML body, Message-ID, In-Reply-To.
-   - Deduplicates on Message-ID, then writes an `emails` row plus its first `email_messages` row, exactly as the bridge sync does today.
-   - Runs tag parsing (`src/lib/tags.ts`) so `#URGENT` / `[REFUND]` pills work on arrival.
+## Steps I do in the app
 
-2. **Cloudflare Email Worker script** committed under `cloudflare/email-worker/` with a short setup guide: enable Email Routing on johnnygoodguytv.com, add the Worker, route `sales@johnnygoodguytv.com` to it, set the endpoint URL + shared secret as Worker vars.
+1. Add `bridge/railway.json` and a `PORT`-aware start so Railway's injected port is used instead of the hard-coded 8931, plus a `bridge/.env.example`.
+2. Add a Railway section to `bridge/README.md` mirroring the steps above.
+3. In **Settings -> Self-hosted**, prefill the MCP server URL field with a Railway-shaped placeholder and add short helper text ("paste the Railway domain + `/mcp`"), so the connection test target is obvious.
+4. No database or schema changes - `syncMailbox` already talks to whatever endpoint is saved.
 
-3. **Settings update** — add an "Email intake" panel showing the endpoint URL to paste into the Worker and the intake secret status, alongside the existing Self-hosted/Managed tabs. The IMAP bridge stays as-is, unused unless you deploy it.
+## After deploy
 
-## Trade-offs you should know before approving
+In the app: **Settings -> Self-hosted** -> URL `https://<your-domain>/mcp`, token = the `MCP_AUTH_TOKEN` you set -> **Test connection**. It should report 4 tools. Then **Sync inbox** pulls unread mail from IONOS into the inbox.
 
-- **Receiving:** fully solved, nothing to host.
-- **Sending:** Cloudflare Email Routing cannot send. Approve & Send and billing reminders still need an outbound path — either the IONOS SMTP bridge, or Lovable's built-in email sending (requires verifying johnnygoodguytv.com as a sender domain here). I'd recommend the latter so you never host anything.
-- **MX change:** the domain's MX records move from IONOS to Cloudflare. The IONOS mailbox stops receiving new mail from that point on.
+## Notes
 
-## Open question
-
-Which outbound path do you want alongside this — Lovable managed sending (verify the domain, nothing to host) or keep the IONOS SMTP bridge for sending only?
-
-## Technical details
-
-- Public route under `src/routes/api/public/*` so Cloudflare can reach it unauthenticated; the handler verifies the shared secret itself.
-- Zod validation on the posted payload; size cap on the raw MIME body.
-- Writes use `supabaseAdmin`, imported inside the handler after secret verification.
-- No new tables — reuses `emails` and `email_messages`.
+- Railway bills by usage; this service idles at near-zero CPU and costs very little.
+- If the connection test fails with an auth error, it is almost always the IONOS password - IONOS requires an app password once 2FA is enabled on the account.
