@@ -9,21 +9,25 @@ app.use(express.json({ limit: "2mb" }));
 const PORT = Number(process.env["PORT"] ?? 8931);
 const AUTH_TOKEN = process.env["MCP_AUTH_TOKEN"] ?? "";
 
+const mailboxUsername = process.env["MAILBOX_USERNAME"] || process.env["IONOS_EMAIL"] || "";
+const mailboxPassword = process.env["MAILBOX_PASSWORD"] || process.env["IONOS_EMAIL_PASSWORD"] || "";
+const mailboxFrom = process.env["MAILBOX_FROM"] || mailboxUsername || "";
+
 const imapConfig: ImapConfig = {
-  host: process.env["IMAP_HOST"] ?? "imap.ionos.com",
-  port: Number(process.env["IMAP_PORT"] ?? 993),
-  username: process.env["MAILBOX_USERNAME"] ?? "",
-  password: process.env["MAILBOX_PASSWORD"] ?? "",
-  useTLS: (process.env["IMAP_USE_TLS"] ?? "true") === "true",
+  host: process.env["IMAP_HOST"] || "imap.ionos.com",
+  port: Number(process.env["IMAP_PORT"] || 993),
+  username: mailboxUsername,
+  password: mailboxPassword,
+  useTLS: (process.env["IMAP_USE_TLS"] || "true") === "true",
 };
 
 const smtpConfig: SmtpConfig = {
-  host: process.env["SMTP_HOST"] ?? "smtp.ionos.com",
-  port: Number(process.env["SMTP_PORT"] ?? 587),
-  username: process.env["MAILBOX_USERNAME"] ?? "",
-  password: process.env["MAILBOX_PASSWORD"] ?? "",
-  useTLS: (process.env["SMTP_USE_TLS"] ?? "true") === "true",
-  from: process.env["MAILBOX_FROM"] ?? process.env["MAILBOX_USERNAME"] ?? "",
+  host: process.env["SMTP_HOST"] || "smtp.ionos.com",
+  port: Number(process.env["SMTP_PORT"] || 587),
+  username: mailboxUsername,
+  password: mailboxPassword,
+  useTLS: (process.env["SMTP_USE_TLS"] || "true") === "true",
+  from: mailboxFrom,
 };
 
 function unauthorized(res: Response) {
