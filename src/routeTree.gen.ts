@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DraftsRouteImport } from './routes/drafts'
 import { Route as KnowledgeRouteImport } from './routes/knowledge'
 import { Route as SentRouteImport } from './routes/sent'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as TrainingRouteImport } from './routes/training'
 
 const IndexRoute = IndexRouteImport.update({
@@ -35,6 +36,11 @@ const SentRoute = SentRouteImport.update({
   path: '/sent',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TrainingRoute = TrainingRouteImport.update({
   id: '/training',
   path: '/training',
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/drafts': typeof DraftsRoute
   '/knowledge': typeof KnowledgeRoute
   '/sent': typeof SentRoute
+  '/settings': typeof SettingsRoute
   '/training': typeof TrainingRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/drafts': typeof DraftsRoute
   '/knowledge': typeof KnowledgeRoute
   '/sent': typeof SentRoute
+  '/settings': typeof SettingsRoute
   '/training': typeof TrainingRoute
 }
 export interface FileRoutesById {
@@ -61,14 +69,23 @@ export interface FileRoutesById {
   '/drafts': typeof DraftsRoute
   '/knowledge': typeof KnowledgeRoute
   '/sent': typeof SentRoute
+  '/settings': typeof SettingsRoute
   '/training': typeof TrainingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/drafts' | '/knowledge' | '/sent' | '/training'
+  fullPaths:
+    '/' | '/drafts' | '/knowledge' | '/sent' | '/settings' | '/training'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/drafts' | '/knowledge' | '/sent' | '/training'
-  id: '__root__' | '/' | '/drafts' | '/knowledge' | '/sent' | '/training'
+  to: '/' | '/drafts' | '/knowledge' | '/sent' | '/settings' | '/training'
+  id:
+    | '__root__'
+    | '/'
+    | '/drafts'
+    | '/knowledge'
+    | '/sent'
+    | '/settings'
+    | '/training'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -76,6 +93,7 @@ export interface RootRouteChildren {
   DraftsRoute: typeof DraftsRoute
   KnowledgeRoute: typeof KnowledgeRoute
   SentRoute: typeof SentRoute
+  SettingsRoute: typeof SettingsRoute
   TrainingRoute: typeof TrainingRoute
 }
 
@@ -109,6 +127,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/training': {
       id: '/training'
       path: '/training'
@@ -124,6 +149,7 @@ const rootRouteChildren: RootRouteChildren = {
   DraftsRoute: DraftsRoute,
   KnowledgeRoute: KnowledgeRoute,
   SentRoute: SentRoute,
+  SettingsRoute: SettingsRoute,
   TrainingRoute: TrainingRoute,
 }
 export const routeTree = rootRouteImport
